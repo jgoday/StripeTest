@@ -1,0 +1,47 @@
+﻿@using Microsoft.Extensions.Options
+@inject IOptions<StripeSettings> Stripe
+
+<script src="https://js.stripe.com/v3"></script>
+
+<div class="card">
+  <header class="card-header">
+    <p class="card-header-title">
+      A super awesome t-shirt !
+    </p>
+    <a href="#" class="card-header-icon" aria-label="more options">
+      <span class="icon">
+        <i class="fas fa-angle-down" aria-hidden="true"></i>
+      </span>
+    </a>
+  </header>
+  <div class="card-content">
+    <div class="content">
+      You're about to buy some exciting t-shirt !
+    </div>
+  </div>
+  <footer class="card-footer">
+    <a href="#" id="checkout-button" class="card-footer-item">Pay</a>
+  </footer>
+</div>
+
+<script type="text/javascript">
+    const stripe = Stripe('@Stripe.Value.PublishableKey');
+
+    const checkoutButton = document.querySelector('#checkout-button');
+    checkoutButton.addEventListener('click', async function () {
+        const charge = await fetch(`/home/charge`, {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+        const resp = await charge.json();
+        console.log(resp);
+        if (!resp.error) {
+            const result = await stripe.redirectToCheckout({
+                sessionId: resp.id
+            });
+            console.log(result);
+        }
+});
+</script>
